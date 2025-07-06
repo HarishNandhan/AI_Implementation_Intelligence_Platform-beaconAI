@@ -1,0 +1,32 @@
+# FastAPI stack
+fastapi
+uvicorn[standard]
+pydantic
+
+# Web scraping
+selenium
+beautifulsoup4
+lxml
+
+# RAG stack
+langchain
+faiss-cpu
+tiktoken
+
+# Embeddings (Open-source, fallback-ready)
+sentence-transformers
+
+# PDF generation
+reportlab
+
+# LLM API integration
+httpx
+
+# Email services
+sendgrid
+
+# Env handling
+python-dotenv
+
+# Optional frontend support
+jinja2
