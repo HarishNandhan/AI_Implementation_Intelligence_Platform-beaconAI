@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from api.schemas.insight_schema import InsightRequest, InsightResponse
 from llm_engine.prompt_template import build_prompt
 from llm_engine.llama_client import generate_llama_response
+from llm_engine.rag_engine import retrieve_context  # ✅ NEW
 import logging
 
 router = APIRouter()
@@ -9,23 +10,25 @@ logger = logging.getLogger(__name__)
 
 @router.post("/generate", response_model=InsightResponse)
 def generate_insight(data: InsightRequest):
-    """
-    Generate a strategic insight based on persona, question, answer, and company info.
-    """
     try:
         logger.info(f"[INSIGHT] Generating insight for {data.persona} at {data.company_name}")
 
-        # 1. Build prompt using logic
+        # ✅ Step 1: Retrieve top-k chunks using question as query
+        rag_chunks = retrieve_context(data.question)
+        rag_context = "\n".join(rag_chunks) if rag_chunks else ""
+
+        # ✅ Step 2: Build a prompt including retrieved RAG context
         prompt = build_prompt(
             persona=data.persona,
             company_name=data.company_name,
             category=data.category,
             question=data.question,
             answer=data.answer,
-            company_summary=data.company_summary
+            company_summary=data.company_summary,
+            rag_context=rag_context  # ✅ Injected
         )
 
-        # 2. Send to LLAMA API and get response
+        # Step 3: Generate insight using LLM
         insight_text = generate_llama_response(prompt)
 
         return InsightResponse(

@@ -30,3 +30,8 @@ python-dotenv
 
 # Optional frontend support
 jinja2
+
+
+pydantic[email]
+huggingface_hub
+langchain-community
