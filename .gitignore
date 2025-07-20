@@ -144,6 +144,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# Allow .env.example files to be tracked
+!.env.example
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -205,3 +208,6 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Generated reports - exclude from version control
+generated_reports/

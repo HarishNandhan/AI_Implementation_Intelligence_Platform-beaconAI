@@ -1,42 +1,55 @@
 import os
-import httpx
+import logging
 from dotenv import load_dotenv
+from huggingface_hub import InferenceClient
 
-# Load API keys from .env
-load_dotenv()
-LLM_API_URL = os.getenv("LLM_API_URL")  # e.g., "https://your-llm-host.com/generate"
-LLM_API_KEY = os.getenv("LLM_API_KEY")  # Optional if using auth
+# Load environment variables from .env
+load_dotenv("config/.env.example")
+
+logger = logging.getLogger(__name__)
+
+# Load Hugging Face credentials
+HF_TOKEN = os.getenv("HF_TOKEN")
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "auto")
+LLM_MODEL = os.getenv("LLM_MODEL", "mistralai/Mistral-7B-Instruct-v0.3")
+
+# Validate token
+if not HF_TOKEN:
+    logger.error("❌ HF_TOKEN is not set in .env")
+    raise ValueError("HF_TOKEN is required to access Hugging Face Inference API")
+
+logger.info(f"✅ Using Hugging Face Model: {LLM_MODEL} via {LLM_PROVIDER}")
+
+# Initialize Hugging Face InferenceClient
+client = InferenceClient(provider=LLM_PROVIDER, api_key=HF_TOKEN)
 
 def generate_llama_response(prompt: str) -> str:
     """
-    Sends prompt to LLAMA API and returns the generated text.
+    Generates a strategic insight using a chat-compatible LLM (e.g., Mistral via Novita).
     """
-
     try:
-        headers = {
-            "Content-Type": "application/json"
-        }
-        if LLM_API_KEY:
-            headers["Authorization"] = f"Bearer {LLM_API_KEY}"
-
-        payload = {
-            "prompt": prompt,
-            "max_tokens": 300,
-            "temperature": 0.7,
-        }
-
-        response = httpx.post(LLM_API_URL, headers=headers, json=payload)
-        response.raise_for_status()
-
-        result = response.json()
-
-        # Adjust this depending on how your LLM API formats output
-        insight = result.get("text") or result.get("response") or result.get("choices", [{}])[0].get("text")
-
-        if not insight:
-            raise ValueError("No text returned from LLM.")
-
-        return insight.strip()
+        response = client.chat.completions.create(
+            model=LLM_MODEL,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.7,
+            max_tokens=300
+        )
+        return response.choices[0].message.content.strip()
 
     except Exception as e:
-        return f"⚠️ LLM generation failed: {e}"
+        logger.error(f"❌ LLM call failed: {e}")
+
+        # Custom user-friendly error messages
+        if "401" in str(e) or "Unauthorized" in str(e):
+            return "⚠️ Authentication failed. Check your Hugging Face token."
+        elif "not supported for task" in str(e):
+            return "⚠️ This model must be used as a chat model (chat.completions.create)."
+        elif "404" in str(e):
+            return f"⚠️ Model not found: {LLM_MODEL}. Double-check the model name."
+        else:
+            return f"⚠️ LLM call failed: {e}"
