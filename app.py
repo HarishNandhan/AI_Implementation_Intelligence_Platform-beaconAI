@@ -30,7 +30,7 @@ if submitted:
     with st.spinner("Generating your personalized PDF report..."):
         try:
             response = requests.post(
-                "http://localhost:8000/report/generate",
+                "https://ai-implementation-intelligence-platform.onrender.com/report/generate",
                 json={
                     "company_name": company_name,
                     "persona": persona,
