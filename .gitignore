@@ -211,3 +211,4 @@ __marimo__/
 
 # Generated reports - exclude from version control
 generated_reports/
+config/.env.example
