@@ -5,6 +5,7 @@ from llm_engine.rag_engine import generate_solution_section, retrieve_context
 from llm_engine.prompt_template import build_prompt
 from llm_engine.llama_client import generate_llama_response
 from care.question_bank import CARE_QUESTIONS
+from scraper.selenium_scraper import scrape_company_website
 import logging
 
 router = APIRouter()
@@ -63,3 +64,5 @@ def generate_report(data: ReportRequest):
     except Exception as e:
         logger.error(f"[REPORT ERROR] {e}")
         raise HTTPException(status_code=500, detail="Failed to generate report.")
+
+

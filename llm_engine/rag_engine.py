@@ -46,7 +46,8 @@ def ingest_beaconai_context(name: str, urls: list[str]) -> int:
 
 def generate_solution_section(insight_list: list[str]) -> str:
     """
-    Takes all insight texts and asks the LLM how BeaconAI can solve these issues.
+    Uses collected insights to generate a realistic, service-grounded summary of how BeaconAI
+    can help the client become AI-ready and what outcomes they can expect in 2–3 years.
     """
     from llm_engine.llama_client import generate_llama_response
 
@@ -55,19 +56,32 @@ def generate_solution_section(insight_list: list[str]) -> str:
     joined_context = "\n".join(context)
 
     prompt = f"""
+You are a BeaconAI solutions consultant.
+
 A client has received the following AI readiness insights:
 
 {summary_text}
 
-You are an expert at BeaconAI. Based on the above client challenges and the following information about BeaconAI's services:
+These reflect the real issues they are facing in AI culture, tooling, literacy, and long-term planning.
+
+Below is a curated list of BeaconAI’s **actual services and capabilities**:
 
 {joined_context}
 
-Write a professional 4–5 sentence summary of how BeaconAI can help this client.
-End with an encouraging tone focused on capability and partnership.
-    """.strip()
+🎯 Now, write a clear 7–8 sentence solution summary that:
+- Speaks directly **to the client** using \"you\" and \"your\" (second-person voice)
+- Describes what **we (BeaconAI)** will do to support their AI transformation
+- Ties our services directly to the gaps identified in their responses
+- Includes realistic 2–3 year improvements if they adopt our solution
+- Stays grounded — no made-up services, no buzzwords, no overpromises
+
+Avoid generic consulting tone. This should feel like an expert giving advice to a business decision-maker.
+
+Write as if this content will appear in their official PDF report. Start directly. No greetings or intros. Just the core message.
+""".strip()
 
     return generate_llama_response(prompt)
+
 
 
 def retrieve_context(query: str, k: int = 4):
