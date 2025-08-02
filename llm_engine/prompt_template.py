@@ -1,29 +1,29 @@
 def build_prompt(persona, company_name, category, question, answer, company_summary="", rag_context="") -> str:
     """
-    Builds a smart, persona-aware insight prompt with second-person, role-based, expert tone.
+    Builds a sharp, opinionated AI consultant prompt that generates a 3–4 sentence strategic insight
+    directly for the user's persona, with a simple, human, expert tone.
     """
-    # Optional content
     summary_section = f"Company background:\n{company_summary}\n" if company_summary else ""
-    rag_section = f"Additional context from the company website or materials:\n{rag_context}\n" if rag_context else ""
+    rag_section = f"Relevant information from the company site or internal materials:\n{rag_context}\n" if rag_context else ""
 
     prompt = f"""
-You are an experienced AI consultant with many years of domain-specific experience across multiple industries. You are now preparing an insight for a {persona} from the company {company_name} who has just completed an AI Readiness Diagnostic using the CARE framework (Culture, Adoption, Readiness, Evolution).
+You are an experienced AI consultant. You’re speaking directly to a {persona} at {company_name}, who just answered a question in the AI Readiness Diagnostic (CARE framework).
 
-Write a message **directly to** the {persona} — using **second-person tone** ("you", "your") — as if you're advising them personally.
+Your job is to think like a domain expert — understand what the answer says about their company mindset, culture, or systems — and give a clear, honest opinion.
 
-Use the following information:
-- Category: {category}
+Input:
+- CARE Category: {category}
 - Question: {question}
-- Answer: {answer}
+- Their Answer: {answer}
 {summary_section}{rag_section}
 
-🎯 Please generate a strategic insight (3-5 sentences) that:
-1. Starts with their current state based on the answer
-2. Highlights risks, gaps, or inefficiencies specific to their company
-3. Ends with specific, persona-relevant advice or next steps
-4. Feels like direct expert advice, not a formal letter
+🎯 Write a direct message (3–4 sentences max) that:
+- Reflects their current state based on the answer
+- Calls out any risks, limitations, or missed opportunities
+- Gives your honest advice on what they should fix or start doing
+- Feels like a real consultant’s voice — no greetings, no intros, no fluff
 
-Write in a professional, direct tone. Do NOT include greetings, closings, signatures, or formal letter formatting. Focus only on the strategic insight content.
+Use second-person ("you", "your"). Keep it human, sharp, and simple. Just the insight.
 """.strip()
 
     return prompt

@@ -1,153 +1,117 @@
 CARE_QUESTIONS = {
     # --------- CULTURE ---------
     "C1": {
-        "question": "How confident is your leadership team in making decisions about AI?",
+        "question": "How confident and aligned is your leadership in making AI-related decisions?",
         "options": [
-            "Not confident at all",
-            "Somewhat confident",
-            "Confident but not aligned",
-            "Very confident and aligned"
+            "Not confident or aligned at all",
+            "Some confidence, but not aligned",
+            "Confident but decisions vary by team",
+            "Very confident and aligned across leadership"
         ]
     },
     "C2": {
-        "question": "How would you describe your company’s overall mindset toward AI?",
+        "question": "What best describes your organization’s mindset and openness toward AI experimentation?",
         "options": [
-            "Fearful and resistant",
-            "Cautiously curious",
-            "Optimistic and experimenting",
-            "Strategic and proactive"
+            "Fearful and resistant to AI tools",
+            "Cautiously curious and limited trials",
+            "Optimistic and some informal usage",
+            "Actively encouraging and investing in experimentation"
         ]
     },
     "C3": {
-        "question": "How open is your organization to experimentation with new AI tools?",
+        "question": "How well is AI considered part of your strategic direction across teams?",
         "options": [
-            "Not open at all",
-            "Some individuals experimenting quietly",
-            "Open to informal use",
-            "Actively encouraging experimentation"
-        ]
-    },
-    "C4": {
-        "question": "Is there a shared understanding across teams of AI's role in your future strategy?",
-        "options": [
-            "No shared understanding",
-            "Some informal discussions",
-            "Increasing awareness in key teams",
-            "Clearly defined and shared strategy"
+            "No clear understanding or direction",
+            "A few informal discussions have occurred",
+            "Some teams are becoming aware",
+            "Clear, shared vision integrated into strategy"
         ]
     },
 
     # --------- ADOPTION ---------
     "A1": {
-        "question": "Are AI tools like ChatGPT, Copilot, or Midjourney being used in your organization?",
+        "question": "How is AI currently being used across your organization?",
         "options": [
-            "No usage at all",
-            "Used informally by individuals",
-            "Used by specific teams with oversight",
-            "Formally adopted and integrated"
+            "Not used at all",
+            "Informally by individuals",
+            "Piloted within select teams",
+            "Formally integrated into key workflows"
         ]
     },
     "A2": {
-        "question": "Do you have internal policies or guidelines for responsible AI use?",
+        "question": "What governance or guidelines exist for AI usage?",
         "options": [
-            "No policies",
-            "Policies are in development",
-            "Informal guidelines exist",
-            "Fully implemented and enforced policies"
+            "No policies or oversight",
+            "Guidelines are being discussed or drafted",
+            "Informal guidance followed by teams",
+            "Formal policies are implemented and enforced"
         ]
     },
     "A3": {
-        "question": "Are there specific teams actively experimenting or piloting AI tools?",
+        "question": "How proactive are your teams in piloting and auditing AI tools?",
         "options": [
-            "No teams experimenting",
-            "One team piloting",
-            "Several teams piloting",
-            "AI experimentation is part of multiple workflows"
-        ]
-    },
-    "A4": {
-        "question": "How often do you audit or review how AI is being used in your organization?",
-        "options": [
-            "Never",
-            "Occasionally when issues arise",
-            "Semi-regular internal check-ins",
-            "Regular audits with executive visibility"
+            "No active efforts or tracking",
+            "One or two teams experimenting casually",
+            "Pilots exist with occasional reviews",
+            "Several teams piloting with regular audits"
         ]
     },
 
     # --------- READINESS ---------
     "R1": {
-        "question": "How familiar are your employees with AI concepts and tools?",
+        "question": "How comfortable are employees with using and understanding AI tools?",
         "options": [
-            "Completely unfamiliar",
-            "Basic awareness",
+            "Not familiar at all",
+            "Some basic awareness",
             "Comfortable with common tools",
-            "Proficient and confident across roles"
+            "Proficient and confident across functions"
         ]
     },
     "R2": {
-        "question": "Have you invested in any training or workshops on AI for your teams?",
+        "question": "What kind of AI training has been made available to your teams?",
         "options": [
-            "No training at all",
-            "Some informal self-learning encouraged",
-            "Structured but occasional workshops",
+            "No training offered",
+            "Some informal or self-led learning",
+            "Occasional structured workshops",
             "Ongoing formal training programs"
         ]
     },
     "R3": {
-        "question": "Who currently drives AI-related decisions in your organization?",
+        "question": "Who drives AI-related decisions and how empowered are employees to explore AI?",
         "options": [
-            "No one",
-            "Individual teams decide independently",
-            "Executive leadership decides",
-            "A cross-functional AI governance group leads"
-        ]
-    },
-    "R4": {
-        "question": "Do employees feel empowered and safe to explore AI tools in their daily work?",
-        "options": [
-            "No, they’re discouraged or afraid to try",
-            "Some try quietly without support",
-            "Encouraged within specific teams",
-            "Company-wide support and encouragement"
+            "No decision-making structure or support",
+            "Individual teams explore quietly",
+            "Leadership directs with some team freedom",
+            "Company-wide support and shared decision-making"
         ]
     },
 
     # --------- EVOLUTION ---------
     "E1": {
-        "question": "Has your company explored how AI might reshape your business model or customer experience?",
+        "question": "Has your organization begun rethinking its business model or customer experience using AI?",
         "options": [
-            "Not yet",
-            "In early discussions",
-            "Already piloting transformative ideas",
-            "Transformation is underway or planned"
+            "Not considered yet",
+            "Early internal discussions",
+            "Piloting new AI-based approaches",
+            "Transformation plans are underway"
         ]
     },
     "E2": {
-        "question": "Do you track what your competitors or industry peers are doing with AI?",
+        "question": "How actively do you monitor AI trends among competitors and the industry?",
         "options": [
-            "Not at all",
-            "Occasionally via articles or news",
-            "Internally tracked by specific teams",
-            "Tracked closely with internal reports/briefings"
+            "Not tracked at all",
+            "Occasionally read industry news",
+            "Tracked by some internal teams",
+            "Closely monitored with internal reports/alerts"
         ]
     },
     "E3": {
-        "question": "How do you view AI in terms of your organization’s future?",
+        "question": "Do you have a roadmap for scaling AI and embedding it into your future?",
         "options": [
-            "A short-term productivity tool",
-            "Still unsure or evaluating",
-            "A long-term strategic priority",
-            "Already part of our transformation vision"
-        ]
-    },
-    "E4": {
-        "question": "Do you currently have a roadmap for scaling AI across departments?",
-        "options": [
-            "No roadmap",
-            "Early roadmap in planning",
-            "Roadmap exists but not implemented",
-            "Roadmap is live and in progress"
+            "No roadmap exists",
+            "In early planning stages",
+            "Roadmap exists but underused",
+            "Roadmap is active and aligned with strategy"
         ]
     }
 }
