@@ -33,6 +33,7 @@ if submitted:
                 "http://localhost:8000/report/generate",
                 json={
                     "company_name": company_name,
+                    "company_website": company_website,
                     "persona": persona,
                     "insights": answers
                 }
