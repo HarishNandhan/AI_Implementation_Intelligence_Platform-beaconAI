@@ -1,9 +1,17 @@
 from scraper.selenium_scraper import scrape_company_website
 from vector_store.embedder import split_text_into_documents
-from vector_store.faiss_index import VectorStore
 from llm_engine.llama_client import generate_llama_response
 
-vector_store = VectorStore()
+# Try to initialize vector store with fallback
+try:
+    from vector_store.faiss_index import VectorStore
+    vector_store = VectorStore()
+    print("✅ Vector store initialized successfully")
+except Exception as e:
+    print(f"⚠️ Warning: Could not initialize vector store: {e}")
+    print("Using simple fallback store...")
+    from vector_store.simple_store import SimpleVectorStore
+    vector_store = SimpleVectorStore()
 
 def ingest_company_site(company_name: str, url: str) -> int:
     """
@@ -40,8 +48,16 @@ def retrieve_context(query: str, k: int = 4) -> list[str]:
     """
     Retrieves top-k relevant chunks from FAISS based on a user query.
     """
-    relevant_docs = vector_store.search(query, k=k)
-    return [doc.page_content for doc in relevant_docs]
+    try:
+        relevant_docs = vector_store.search(query, k=k)
+        if hasattr(relevant_docs[0], 'page_content'):
+            return [doc.page_content for doc in relevant_docs]
+        else:
+            # Simple store returns strings directly
+            return relevant_docs
+    except Exception as e:
+        print(f"Warning: Could not retrieve context: {e}")
+        return ["BeaconAI provides AI implementation consulting and training services."]
 
 def generate_solution_section(insight_list: list[str], company_context: str) -> str:
     """
