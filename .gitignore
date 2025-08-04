@@ -136,6 +136,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env.*
 .envrc
 .venv
 env/
@@ -146,6 +147,13 @@ venv.bak/
 
 # Allow .env.example files to be tracked
 !.env.example
+!*.env.example
+
+# Specific environment files to ignore
+deployment/.env
+deployment/.env.docker
+deployment/.env.minimal
+config/.env
 
 # Spyder project settings
 .spyderproject
@@ -211,4 +219,7 @@ __marimo__/
 
 # Generated reports - exclude from version control
 generated_reports/
+
+# Docker ignore file should be tracked
+!.dockerignore
 config/.env.example
