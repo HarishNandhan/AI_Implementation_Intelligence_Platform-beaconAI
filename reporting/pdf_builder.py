@@ -49,7 +49,7 @@ def add_header_footer(canvas, doc):
         # Footer text - White
         canvas.setFillColorRGB(1, 1, 1)  # White
         canvas.setFont('Helvetica', 8)
-        canvas.drawString(40, 20, "© 2024 beaconAI. All rights reserved.")
+        canvas.drawString(40, 20, "© 2025 beaconAI. All rights reserved.")
         canvas.drawString(40, 10, "info@beaconai.ai | +1 (303) 877-4292")
         
         # Page number
