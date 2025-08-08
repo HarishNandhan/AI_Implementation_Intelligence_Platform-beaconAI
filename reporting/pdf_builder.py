@@ -34,7 +34,7 @@ def add_header_footer(canvas, doc):
         # Header text - White
         canvas.setFillColorRGB(1, 1, 1)  # White
         canvas.setFont('Helvetica-Bold', 14)
-        canvas.drawString(40, page_height - 35, "BeaconAI")
+        canvas.drawString(40, page_height - 35, "beaconAI")
         canvas.setFont('Helvetica', 10)
         canvas.drawString(40, page_height - 50, "AI Implementation Intelligence Platform")
         
@@ -49,7 +49,7 @@ def add_header_footer(canvas, doc):
         # Footer text - White
         canvas.setFillColorRGB(1, 1, 1)  # White
         canvas.setFont('Helvetica', 8)
-        canvas.drawString(40, 20, "© 2024 BeaconAI. All rights reserved.")
+        canvas.drawString(40, 20, "© 2024 beaconAI. All rights reserved.")
         canvas.drawString(40, 10, "info@beaconai.ai | +1 (303) 877-4292")
         
         # Page number
@@ -59,9 +59,9 @@ def add_header_footer(canvas, doc):
         # Fallback: simple text header/footer if graphics fail
         canvas.setFillColorRGB(0, 0, 0)  # Black text
         canvas.setFont('Helvetica-Bold', 10)
-        canvas.drawString(40, page_height - 30, "BeaconAI - AI Implementation Intelligence Platform")
+        canvas.drawString(40, page_height - 30, "beaconAI - AI Implementation Intelligence Platform")
         canvas.setFont('Helvetica', 8)
-        canvas.drawString(40, 20, "© 2024 BeaconAI. All rights reserved.")
+        canvas.drawString(40, 20, "© 2025 beaconAI. All rights reserved.")
         canvas.drawRightString(page_width - 40, 20, f"Page {doc.page}")
     
     canvas.restoreState()
@@ -172,7 +172,7 @@ def generate_pdf_report(company_name, persona, insights, solution_section, outpu
     # COVER PAGE
     # Add header as content
     header_data = [
-        ["BeaconAI", "AI Implementation Intelligence Platform"]
+        ["beaconAI", "AI Implementation Intelligence Platform"]
     ]
     
     header_table = Table(header_data, colWidths=[200, 280])
@@ -236,7 +236,7 @@ def generate_pdf_report(company_name, persona, insights, solution_section, outpu
         ["Assessment Date", datetime.now().strftime('%B %d, %Y')],
         ["Stakeholder Role", persona],
         ["Assessment Framework", "CARE Diagnostic Model"],
-        ["Prepared By", "BeaconAI AI Readiness Intelligence Engine"]
+        ["Prepared By", "beaconAI AI Readiness Intelligence Engine"]
     ]
     
     exec_table = Table(exec_data, colWidths=[150, 300])
@@ -495,7 +495,7 @@ def generate_pdf_report(company_name, persona, insights, solution_section, outpu
     
     # Contact Information Table with better alignment
     contact_data = [
-        [Paragraph("<b>BEACONAI CONSULTING TEAM</b>", styles['ProfessionalBody']), ""],
+        [Paragraph("<b>bEACONAI CONSULTING TEAM</b>", styles['ProfessionalBody']), ""],
         [Paragraph("<b>Email</b>", styles['ProfessionalBody']), 
          Paragraph('<a href="mailto:info@beaconai.ai" color="blue">info@beaconai.ai</a>', styles['ProfessionalBody'])],
         [Paragraph("<b>Phone</b>", styles['ProfessionalBody']), 
@@ -538,7 +538,7 @@ def generate_pdf_report(company_name, persona, insights, solution_section, outpu
     
     # Footer content table
     footer_data = [
-        ["© 2024 BeaconAI. All rights reserved.", f"Generated: {datetime.now().strftime('%B %d, %Y')}"],
+        ["© 2025 beaconAI. All rights reserved.", f"Generated: {datetime.now().strftime('%B %d, %Y')}"],
         ["info@beaconai.ai | +1 (303) 877-4292", "AI Implementation Intelligence Platform"]
     ]
     

@@ -220,6 +220,12 @@ __marimo__/
 # Generated reports - exclude from version control
 generated_reports/
 
+# SSH Keys - NEVER commit these
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
 # Docker ignore file should be tracked
 !.dockerignore
 config/.env.example

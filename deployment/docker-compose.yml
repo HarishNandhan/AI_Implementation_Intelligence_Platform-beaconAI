@@ -15,11 +15,13 @@ services:
       - SENDGRID_API_KEY=${SENDGRID_API_KEY:-SG.your_sendgrid_api_key_here}
       - SENDER_EMAIL=${SENDER_EMAIL:-insights@beaconai.com}
       - DOCKER_ENV=true
+
     volumes:
       # Mount generated_reports directory to persist PDF files
       - ../generated_reports:/app/generated_reports
       # Mount assets directory for logos/images
       - ../reporting/assets:/app/reporting/assets
+
     networks:
       - beaconai-network
     restart: unless-stopped

@@ -1,0 +1,40 @@
+# Simple docker-compose for AWS deployment
+# Single backend container for easier deployment
+
+version: '3.8'
+
+services:
+  beaconai-backend:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.simple
+    container_name: beaconai-backend
+    ports:
+      - "8000:8000"
+    environment:
+      # Load from .env file
+      - HF_TOKEN=${HF_TOKEN}
+      - LLM_PROVIDER=${LLM_PROVIDER}
+      - LLM_MODEL=${LLM_MODEL}
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+      - MAILGUN_DOMAIN=${MAILGUN_DOMAIN}
+      - MAILGUN_BASE_URL=${MAILGUN_BASE_URL}
+      - SENDER_EMAIL=${SENDER_EMAIL}
+      - SENDER_NAME=${SENDER_NAME}
+      - DOCKER_ENV=true
+    volumes:
+      # Persist generated reports
+      - ../generated_reports:/app/generated_reports
+      # Persist logs
+      - ../logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  default:
+    name: beaconai-network
