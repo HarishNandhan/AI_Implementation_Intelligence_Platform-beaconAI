@@ -1,0 +1,1 @@
+# Google Sheets integration for BeaconAI lead tracking

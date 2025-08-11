@@ -87,61 +87,18 @@ if submitted:
                 # Get backend URL from environment variable or use default
                 backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
                 
-                # First, generate report without email to prepare for email collection
-                response = requests.post(
-                    f"{backend_url}/report/generate",
-                    json={
-                        "company_name": company_name,
-                        "company_website": company_website,
-                        "persona": persona,
-                        "insights": answers
-                        # No email yet - we'll collect it next
-                    },
-                    timeout=120  # Longer timeout for report generation
-                )
+                # Store form data for email collection step
+                st.session_state.company_name = company_name
+                st.session_state.company_website = company_website
+                st.session_state.persona = persona
+                st.session_state.answers = answers
+                st.session_state.report_generated = True
+                st.session_state.email_validated = False
+                
+                st.success("✅ Assessment completed! Please provide your email to generate and receive your report.")
+                st.rerun()
 
-                if response.status_code == 200:
-                    data = response.json()
-                    filepath = data["filepath"]
 
-                    st.success("✅ Report generated successfully!")
-
-                    # Extract filename from filepath
-                    filename = filepath.split("/")[-1] if "/" in filepath else filepath.split("\\")[-1]
-                    
-                    # Get the download data for backup
-                    download_url = f"{backend_url}/report/download/{filename}"
-                    
-                    try:
-                        download_response = requests.get(download_url)
-                        if download_response.status_code == 200:
-                            # Store data in session state
-                            st.session_state.report_generated = True
-                            st.session_state.download_data = download_response.content
-                            st.session_state.filename = filename
-                            st.session_state.email_validated = False  # Reset email validation
-                            st.session_state.email_sent = False  # Reset email status
-                            st.session_state.email_status = ""
-                            st.session_state.mailgun_id = ""
-                            
-                            # Store form data for email sending
-                            st.session_state.company_name = company_name
-                            st.session_state.company_website = company_website
-                            st.session_state.persona = persona
-                            st.session_state.answers = answers
-                            
-                            st.info("📧 Please provide your email address to receive and download the report.")
-                            
-                        else:
-                            st.error(f"❌ Could not prepare the PDF file. Status: {download_response.status_code}")
-                            st.error(f"Error details: {download_response.text}")
-                    except Exception as download_error:
-                        st.error(f"❌ Report preparation failed: {download_error}")
-
-                else:
-                    st.error(f"❌ Report generation failed. Status: {response.status_code}")
-                    if response.text:
-                        st.error(f"Error details: {response.text}")
 
             except requests.exceptions.Timeout:
                 st.error("❌ Report generation timed out. Please try again.")
@@ -158,16 +115,16 @@ if st.session_state.report_generated and not st.session_state.email_validated:
     with st.container():
         st.markdown("""
         <div style="background-color: #f0f8ff; padding: 20px; border-radius: 10px; border-left: 5px solid #0A3161;">
-            <h4 style="color: #0A3161; margin-top: 0;">🔒 Secure Download Access</h4>
+            <h4 style="color: #0A3161; margin-top: 0;">📥 Download Your Report</h4>
             <p style="margin-bottom: 0;">To download your personalized AI readiness report, please provide your email address. 
             This helps us:</p>
             <ul style="margin: 10px 0;">
-                <li>Send you additional AI insights and resources</li>
-                <li>Notify you about relevant AI implementation opportunities</li>
-                <li>Provide follow-up consultation scheduling</li>
+                <li>Track report downloads for analytics</li>
+                <li>Send you additional AI insights and resources (optional)</li>
+                <li>Provide follow-up consultation opportunities</li>
             </ul>
             <p style="margin-bottom: 0; font-size: 0.9em; color: #666;">
-                <em>We respect your privacy and will never share your email with third parties.</em>
+                <em>Your report will be available for immediate download. Email delivery coming soon!</em>
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -184,7 +141,7 @@ if st.session_state.report_generated and not st.session_state.email_validated:
             
             col1, col2, col3 = st.columns([1, 1, 2])
             with col2:
-                email_submitted = st.form_submit_button("🔓 Unlock Download", use_container_width=True)
+                email_submitted = st.form_submit_button("📥 Generate & Download Report", use_container_width=True)
         
         if email_submitted:
             if not email_input:
@@ -192,14 +149,14 @@ if st.session_state.report_generated and not st.session_state.email_validated:
             elif not validate_email(email_input):
                 st.error("❌ Please enter a valid email address (e.g., name@company.com)")
             else:
-                # Email is valid, now send the report via email
-                with st.spinner("📧 Sending report to your email..."):
+                # Email is valid, now generate report for download
+                with st.spinner("📄 Generating your personalized AI readiness report..."):
                     try:
                         backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
                         
-                        # Send email using the generate-and-email endpoint
+                        # Generate report with email (now required)
                         email_response = requests.post(
-                            f"{backend_url}/report/generate-and-email",
+                            f"{backend_url}/report/generate",
                             json={
                                 "company_name": st.session_state.company_name,
                                 "company_website": st.session_state.company_website,
@@ -213,44 +170,76 @@ if st.session_state.report_generated and not st.session_state.email_validated:
                         if email_response.status_code == 200:
                             email_data = email_response.json()
                             
-                            # Update session state with email results
-                            st.session_state.user_email = email_input
-                            st.session_state.email_validated = True
-                            st.session_state.email_sent = email_data.get("email_sent", False)
-                            st.session_state.email_status = email_data.get("email_status", "")
-                            st.session_state.mailgun_id = email_data.get("mailgun_id", "")
+                            # Get PDF content from response (base64 encoded)
+                            import base64
+                            pdf_content_b64 = email_data.get("pdf_content", "")
+                            filename = email_data.get("filename", "report.pdf")
                             
-                            st.success("✅ Email sent successfully!")
-                            st.rerun()
+                            if pdf_content_b64:
+                                try:
+                                    # Decode base64 PDF content
+                                    pdf_content = base64.b64decode(pdf_content_b64)
+                                    
+                                    # Update session state with results
+                                    st.session_state.user_email = email_input
+                                    st.session_state.email_validated = True
+                                    st.session_state.email_sent = email_data.get("email_sent", False)
+                                    st.session_state.email_status = email_data.get("email_status", "")
+                                    st.session_state.mailgun_id = email_data.get("mailgun_id", "")
+                                    st.session_state.download_data = pdf_content
+                                    st.session_state.filename = filename
+                                    
+                                    # Show appropriate success message based on email status
+                                    if email_data.get("email_sent", False):
+                                        st.success("✅ Report generated and emailed successfully! Check your inbox and download below.")
+                                    else:
+                                        st.success("✅ Report generated successfully! Ready for download.")
+                                    st.rerun()
+                                except Exception as decode_error:
+                                    st.error(f"❌ Failed to decode PDF content: {decode_error}")
+                            else:
+                                st.error("❌ No PDF content in response")
                             
                         else:
                             st.error(f"❌ Failed to send email. Status: {email_response.status_code}")
                             st.error(f"Details: {email_response.text}")
                             
-                            # Still allow download even if email fails
-                            st.session_state.user_email = email_input
-                            st.session_state.email_validated = True
-                            st.session_state.email_sent = False
-                            st.session_state.email_status = "Email sending failed, but download is available"
-                            
-                            st.warning("⚠️ Email sending failed, but you can still download the report below.")
-                            st.rerun()
+                            # Try to get PDF content even if email fails
+                            try:
+                                # Check if response is JSON
+                                if email_response.headers.get('content-type', '').startswith('application/json'):
+                                    email_data = email_response.json()
+                                    pdf_content_b64 = email_data.get("pdf_content", "")
+                                    filename = email_data.get("filename", "report.pdf")
+                                    
+                                    if pdf_content_b64:
+                                        import base64
+                                        pdf_content = base64.b64decode(pdf_content_b64)
+                                        
+                                        st.session_state.user_email = email_input
+                                        st.session_state.email_validated = True
+                                        st.session_state.email_sent = False
+                                        st.session_state.email_status = "Email sending failed, but download is available"
+                                        st.session_state.download_data = pdf_content
+                                        st.session_state.filename = filename
+                                        
+                                        st.warning("⚠️ Email sending failed, but you can still download the report below.")
+                                        st.rerun()
+                                    else:
+                                        st.error("❌ No PDF content in response")
+                                else:
+                                    st.error("❌ Server returned non-JSON response")
+                                    st.error(f"Response content: {email_response.text[:200]}...")
+                            except Exception as fallback_error:
+                                st.error(f"❌ Fallback download failed: {fallback_error}")
+                                st.error("Please try again or contact support if the issue persists.")
                             
                     except requests.exceptions.Timeout:
-                        st.error("❌ Email sending timed out. You can still download the report below.")
-                        st.session_state.user_email = email_input
-                        st.session_state.email_validated = True
-                        st.session_state.email_sent = False
-                        st.session_state.email_status = "Email timeout, download available"
-                        st.rerun()
+                        st.error("❌ Report generation timed out. Please try again.")
                         
                     except Exception as email_error:
-                        st.error(f"❌ Email sending error: {str(email_error)}")
-                        st.session_state.user_email = email_input
-                        st.session_state.email_validated = True
-                        st.session_state.email_sent = False
-                        st.session_state.email_status = f"Email error: {str(email_error)}"
-                        st.rerun()
+                        st.error(f"❌ Report generation error: {str(email_error)}")
+                        st.error("Please check if the backend service is running and try again.")
 
 # -------------------------------
 # Show Download Button After Email Validation
@@ -259,92 +248,94 @@ if st.session_state.report_generated and st.session_state.email_validated:
     show_progress(3, 3, "Download Your Report")
     st.subheader("📥 Your AI Readiness Report")
     
-    # Email Status Display
-    if st.session_state.email_sent:
-        # Email sent successfully
-        st.markdown(f"""
-        <div style="background-color: #f0fff0; padding: 20px; border-radius: 8px; border-left: 5px solid #28a745;">
-            <h4 style="color: #28a745; margin-top: 0;">📧 Email Sent Successfully!</h4>
-            <p style="margin-bottom: 10px;">Your AI readiness report has been sent to <strong>{st.session_state.user_email}</strong></p>
-            <p style="margin-bottom: 0; font-size: 0.9em; color: #666;">
-                📬 Check your inbox (and spam folder) for the email from Harish - BeaconAI Team
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        if st.session_state.mailgun_id:
-            st.markdown(f"<p style='font-size: 0.8em; color: #888; margin-top: 10px;'>📧 Email ID: {st.session_state.mailgun_id}</p>", unsafe_allow_html=True)
+    # Download Status Display with Email Status
+    email_sent = st.session_state.get('email_sent', False)
+    email_status = st.session_state.get('email_status', '')
+    
+    if email_sent:
+        status_color = "#28a745"
+        status_bg = "#f0fff0"
+        status_icon = "📧"
+        status_title = "Report Ready & Emailed!"
+        status_message = f"Your personalized AI readiness report has been generated and sent to <strong>{st.session_state.user_email}</strong>"
     else:
-        # Email failed but download available
-        st.markdown(f"""
-        <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; border-left: 5px solid #ffc107;">
-            <h4 style="color: #856404; margin-top: 0;">⚠️ Email Delivery Issue</h4>
-            <p style="margin-bottom: 10px;">We couldn't send the email to <strong>{st.session_state.user_email}</strong></p>
-            <p style="margin-bottom: 0; font-size: 0.9em; color: #666;">
-                Don't worry! You can still download your report below.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        status_color = "#ffc107"
+        status_bg = "#fff3cd"
+        status_icon = "📄"
+        status_title = "Report Ready!"
+        status_message = f"Your personalized AI readiness report has been generated for <strong>{st.session_state.user_email}</strong>"
+    
+    st.markdown(f"""
+    <div style="background-color: {status_bg}; padding: 20px; border-radius: 8px; border-left: 5px solid {status_color};">
+        <h4 style="color: {status_color}; margin-top: 0;">{status_icon} {status_title}</h4>
+        <p style="margin-bottom: 10px;">{status_message}</p>
+        <p style="margin-bottom: 0; font-size: 0.9em; color: #666;">
+            📥 Click the download button below to save your report
+        </p>
+        {f'<p style="margin-top: 10px; font-size: 0.8em; color: #666;"><em>Email Status: {email_status}</em></p>' if email_status else ''}
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
     # Download Section
-    st.markdown("### 📥 Download Options")
+    st.markdown("### 📥 Download Your Report")
     
-    col1, col2 = st.columns([1, 1])
-    
-    with col1:
-        st.markdown("**💻 Web Download**")
-        st.download_button(
-            label="📥 Download PDF Report",
-            data=st.session_state.download_data,
-            file_name=st.session_state.filename,
-            mime="application/pdf",
-            use_container_width=True,
-            type="primary"
-        )
-        st.markdown("<small>Download directly to your device</small>", unsafe_allow_html=True)
+    # Centered Download Button
+    col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        st.markdown("**📧 Email Copy**")
-        if st.session_state.email_sent:
-            st.markdown("""
-            <div style="padding: 10px; background-color: #e8f5e8; border-radius: 5px; text-align: center;">
-                <span style="color: #28a745;">✅ Sent to your email</span>
-            </div>
-            """, unsafe_allow_html=True)
+        if st.session_state.download_data is not None:
+            st.download_button(
+                label="📥 Download Your AI Readiness Report",
+                data=st.session_state.download_data,
+                file_name=st.session_state.filename,
+                mime="application/pdf",
+                use_container_width=True,
+                type="primary"
+            )
+            st.markdown("<p style='text-align: center; font-size: 0.9em; color: #666; margin-top: 10px;'>Click to save PDF to your device</p>", unsafe_allow_html=True)
         else:
-            if st.button("🔄 Retry Email Send", use_container_width=True):
-                # Retry email sending
-                with st.spinner("📧 Retrying email send..."):
-                    try:
-                        backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
-                        
-                        email_response = requests.post(
-                            f"{backend_url}/report/generate-and-email",
-                            json={
-                                "company_name": st.session_state.company_name,
-                                "company_website": st.session_state.company_website,
-                                "persona": st.session_state.persona,
-                                "insights": st.session_state.answers,
-                                "user_email": st.session_state.user_email
-                            },
-                            timeout=60
-                        )
-                        
-                        if email_response.status_code == 200:
-                            email_data = email_response.json()
-                            st.session_state.email_sent = True
-                            st.session_state.email_status = email_data.get("email_status", "")
-                            st.session_state.mailgun_id = email_data.get("mailgun_id", "")
-                            st.success("✅ Email sent successfully!")
-                            st.rerun()
-                        else:
-                            st.error("❌ Email retry failed. Please use the download button above.")
-                    except Exception as e:
-                        st.error(f"❌ Email retry error: {str(e)}")
-        
-        st.markdown("<small>Get a copy in your inbox</small>", unsafe_allow_html=True)
+            st.error("❌ Download data not available. Please try generating the report again.")
+    
+    
+    # Email delivery status
+    st.markdown("---")
+    
+    # Display email status based on backend response
+    if st.session_state.get('email_sent', False):
+        # Email was sent successfully
+        st.markdown("""
+        <div style="background-color: #d4edda; padding: 15px; border-radius: 8px; text-align: center; border-left: 5px solid #28a745;">
+            <p style="margin: 0; font-size: 0.9em; color: #155724;">
+                📧 <strong>Email sent successfully!</strong><br>
+                Your AI readiness report has been delivered to <strong>{}</strong><br>
+                Please check your inbox (and spam folder if needed).
+            </p>
+        </div>
+        """.format(st.session_state.user_email), unsafe_allow_html=True)
+    elif st.session_state.get('email_status', '').startswith('Email sending failed') or st.session_state.get('email_status', '').startswith('Email configuration error'):
+        # Email failed but download is available
+        st.markdown("""
+        <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; text-align: center; border-left: 5px solid #ffc107;">
+            <p style="margin: 0; font-size: 0.9em; color: #856404;">
+                ⚠️ <strong>Email delivery failed</strong><br>
+                We couldn't send the report to <strong>{}</strong>, but you can download it above.<br>
+                <small>Status: {}</small>
+            </p>
+        </div>
+        """.format(st.session_state.user_email, st.session_state.get('email_status', 'Unknown error')), unsafe_allow_html=True)
+    else:
+        # Default message for email capture
+        st.markdown("""
+        <div style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; text-align: center;">
+            <p style="margin: 0; font-size: 0.9em; color: #0A3161;">
+                📧 <strong>Email captured!</strong><br>
+                We've saved your email (<strong>{}</strong>) for future AI insights and consultation opportunities.<br>
+                Your report is ready for download above.
+            </p>
+        </div>
+        """.format(st.session_state.user_email), unsafe_allow_html=True)
     
     # Report Information
     st.markdown("---")
@@ -356,7 +347,10 @@ if st.session_state.report_generated and st.session_state.email_validated:
     with col2:
         st.metric("Role", st.session_state.persona)
     with col3:
-        st.metric("File Size", f"{len(st.session_state.download_data) // 1024} KB")
+        if st.session_state.download_data is not None:
+            st.metric("File Size", f"{len(st.session_state.download_data) // 1024} KB")
+        else:
+            st.metric("File Size", "N/A")
     
     # Call-to-action for next steps
     st.markdown("---")
@@ -406,9 +400,29 @@ if st.session_state.report_generated and st.session_state.email_validated:
     st.markdown("---")
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
-        if st.button("🔄 Generate Another Report", type="secondary", use_container_width=True):
-            # Clear session state
-            for key in list(st.session_state.keys()):
-                if key.startswith(('report_', 'email_', 'user_', 'download_', 'filename', 'company_', 'persona', 'answers', 'mailgun_')):
-                    del st.session_state[key]
-            st.rerun()
+        col_a, col_b = st.columns([1, 1])
+        with col_a:
+            if st.button("🔄 Generate Another Report", type="secondary", use_container_width=True):
+                # Clear session state
+                for key in list(st.session_state.keys()):
+                    if key.startswith(('report_', 'email_', 'user_', 'download_', 'filename', 'company_', 'persona', 'answers', 'mailgun_')):
+                        del st.session_state[key]
+                st.rerun()
+        
+        with col_b:
+            if st.button("🧪 Test Email System", type="secondary", use_container_width=True):
+                with st.spinner("Testing email configuration..."):
+                    try:
+                        backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
+                        test_response = requests.post(f"{backend_url}/report/test-email", timeout=10)
+                        
+                        if test_response.status_code == 200:
+                            test_data = test_response.json()
+                            if test_data["status"] == "success":
+                                st.success(f"✅ Email system working: {test_data['message']}")
+                            else:
+                                st.error(f"❌ Email system issue: {test_data['message']}")
+                        else:
+                            st.error(f"❌ Test failed: {test_response.text}")
+                    except Exception as e:
+                        st.error(f"❌ Test error: {str(e)}")

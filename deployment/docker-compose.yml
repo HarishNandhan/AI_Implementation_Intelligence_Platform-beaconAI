@@ -7,13 +7,32 @@ services:
     container_name: beaconai-backend
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
       # Environment variables for the backend
       - HF_TOKEN=${HF_TOKEN:-hf_your_hugging_face_token_here}
       - LLM_PROVIDER=${LLM_PROVIDER:-auto}
       - LLM_MODEL=${LLM_MODEL:-mistralai/Mistral-7B-Instruct-v0.3}
+      
+      # Email Configuration (Mailgun - Primary)
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+      - MAILGUN_DOMAIN=${MAILGUN_DOMAIN}
+      - MAILGUN_BASE_URL=${MAILGUN_BASE_URL:-https://api.mailgun.net/v3}
+      - SENDER_EMAIL=${SENDER_EMAIL:-dale@beaconai.ai}
+      - SENDER_NAME=${SENDER_NAME:-Dale - BeaconAI Team}
+      
+      # Email Configuration (SendGrid - Fallback)
       - SENDGRID_API_KEY=${SENDGRID_API_KEY:-SG.your_sendgrid_api_key_here}
-      - SENDER_EMAIL=${SENDER_EMAIL:-insights@beaconai.com}
+      
+      # Google Sheets Configuration
+      - GOOGLE_SHEETS_ID=${GOOGLE_SHEETS_ID}
+      - GOOGLE_SHEETS_CREDENTIALS_FILE=${GOOGLE_SHEETS_CREDENTIALS_FILE:-config/google_sheets_credentials.json}
+      
+      # Backend URL
+      - BACKEND_URL=${BACKEND_URL:-http://localhost:8000}
+      
+      # Docker environment flag
       - DOCKER_ENV=true
 
     volumes:
@@ -40,6 +59,8 @@ services:
     container_name: beaconai-frontend
     ports:
       - "8501:8501"
+    env_file:
+      - .env
     environment:
       # Backend URL for frontend to connect to backend service
       - BACKEND_URL=http://backend:8000

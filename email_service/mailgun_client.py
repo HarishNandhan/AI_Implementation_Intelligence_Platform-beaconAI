@@ -22,10 +22,12 @@ class MailgunClient:
         self.sender_name = os.getenv("SENDER_NAME", "Harish - BeaconAI Team")
         
         # Validate configuration
-        if not self.api_key:
-            raise ValueError("MAILGUN_API_KEY environment variable is required")
-        if not self.domain:
-            raise ValueError("MAILGUN_DOMAIN environment variable is required")
+        if not self.api_key or self.api_key == "your_mailgun_api_key_here":
+            raise ValueError("MAILGUN_API_KEY environment variable is required and must be set to a valid API key")
+        if not self.domain or self.domain == "your_domain.com":
+            raise ValueError("MAILGUN_DOMAIN environment variable is required and must be set to a valid domain")
+        
+        logger.info(f"Mailgun client initialized for domain: {self.domain}")
     
     def send_email(
         self, 
@@ -323,7 +325,7 @@ CONTACT BEACONAI:
         try:
             # Test API connection by getting domain info
             response = requests.get(
-                f"{self.base_url}/{self.domain}",
+                f"{self.base_url}/domains/{self.domain}",
                 auth=("api", self.api_key),
                 timeout=10
             )

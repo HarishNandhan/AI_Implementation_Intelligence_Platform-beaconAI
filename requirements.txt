@@ -38,3 +38,7 @@ pydantic[email]
 huggingface_hub
 langchain-community
 langchain-core
+
+# Google Sheets integration
+gspread
+google-auth

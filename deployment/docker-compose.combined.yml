@@ -1,0 +1,42 @@
+# Combined Frontend + Backend in Single Container
+# Uses the main Dockerfile with supervisor
+
+version: '3.8'
+
+services:
+  beaconai-app:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    container_name: beaconai-app
+    ports:
+      - "8000:8000"  # Backend API
+      - "8501:8501"  # Frontend Streamlit
+    environment:
+      # Load from .env file
+      - HF_TOKEN=${HF_TOKEN}
+      - LLM_PROVIDER=${LLM_PROVIDER}
+      - LLM_MODEL=${LLM_MODEL}
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+      - MAILGUN_DOMAIN=${MAILGUN_DOMAIN}
+      - MAILGUN_BASE_URL=${MAILGUN_BASE_URL}
+      - SENDER_EMAIL=${SENDER_EMAIL}
+      - SENDER_NAME=${SENDER_NAME}
+      - BACKEND_URL=http://localhost:8000
+      - DOCKER_ENV=true
+    volumes:
+      # Persist generated reports
+      - ../generated_reports:/app/generated_reports
+      # Persist logs
+      - ../logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health", "&&", "curl", "-f", "http://localhost:8501"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  default:
+    name: beaconai-network
