@@ -422,6 +422,137 @@ def test_email_sending():
         logger.error(f"[TEST EMAIL ERROR] {e}")
         return {"status": "error", "message": str(e)}
 
+@router.post("/test-sheets")
+def test_google_sheets():
+    """Test Google Sheets integration"""
+    try:
+        from google_sheets.test_integration import test_google_sheets_integration
+        
+        success, message, details = test_google_sheets_integration()
+        
+        return {
+            "status": "success" if success else "error",
+            "message": message,
+            "details": details
+        }
+        
+    except Exception as e:
+        logger.error(f"[TEST SHEETS ERROR] {e}")
+        return {"status": "error", "message": str(e)}
+
+@router.post("/sheets/setup-headers")
+def setup_sheets_headers():
+    """Setup Google Sheets headers"""
+    try:
+        from google_sheets.test_integration import setup_sheet_headers_if_needed
+        
+        success, message = setup_sheet_headers_if_needed()
+        
+        return {
+            "status": "success" if success else "error",
+            "message": message
+        }
+        
+    except Exception as e:
+        logger.error(f"[SHEETS SETUP ERROR] {e}")
+        return {"status": "error", "message": str(e)}
+
+@router.get("/sheets/stats")
+def get_sheets_statistics():
+    """Get Google Sheets statistics"""
+    try:
+        from google_sheets.test_integration import get_sheets_stats
+        
+        stats = get_sheets_stats()
+        
+        return {
+            "status": "success" if "error" not in stats else "error",
+            "data": stats
+        }
+        
+    except Exception as e:
+        logger.error(f"[SHEETS STATS ERROR] {e}")
+        return {"status": "error", "message": str(e)}
+
+@router.get("/system/status")
+def get_system_status():
+    """Get overall system status"""
+    try:
+        from google_sheets.test_integration import test_google_sheets_integration, get_sheets_stats
+        
+        # Test all components
+        status = {
+            "timestamp": datetime.now().isoformat(),
+            "overall_status": "healthy",
+            "components": {}
+        }
+        
+        # Test Google Sheets
+        sheets_success, sheets_message, sheets_details = test_google_sheets_integration()
+        status["components"]["google_sheets"] = {
+            "status": "healthy" if sheets_success else "error",
+            "message": sheets_message,
+            "details": sheets_details
+        }
+        
+        # Test Mailgun
+        mailgun_api_key = os.getenv("MAILGUN_API_KEY")
+        mailgun_domain = os.getenv("MAILGUN_DOMAIN")
+        
+        if mailgun_api_key and mailgun_domain and mailgun_api_key != "your_mailgun_api_key_here":
+            try:
+                mailgun_client = MailgunClient()
+                connection_test = mailgun_client.test_connection()
+                status["components"]["email"] = {
+                    "status": "healthy" if connection_test["success"] else "error",
+                    "message": connection_test["message"],
+                    "provider": "mailgun"
+                }
+            except Exception as e:
+                status["components"]["email"] = {
+                    "status": "error",
+                    "message": str(e),
+                    "provider": "mailgun"
+                }
+        else:
+            status["components"]["email"] = {
+                "status": "not_configured",
+                "message": "Mailgun not configured",
+                "provider": "none"
+            }
+        
+        # Test PDF Generation
+        try:
+            from reporting.pdf_builder import generate_pdf_to_buffer
+            test_insights = {"C1": {"question": "Test", "answer": "Test", "insight": "Test"}}
+            pdf_content = generate_pdf_to_buffer("Test", "Test", test_insights, "Test")
+            status["components"]["pdf_generation"] = {
+                "status": "healthy",
+                "message": f"PDF generated successfully ({len(pdf_content)} bytes)"
+            }
+        except Exception as e:
+            status["components"]["pdf_generation"] = {
+                "status": "error",
+                "message": str(e)
+            }
+        
+        # Determine overall status
+        component_statuses = [comp["status"] for comp in status["components"].values()]
+        if "error" in component_statuses:
+            status["overall_status"] = "degraded"
+        elif "not_configured" in component_statuses:
+            status["overall_status"] = "partial"
+        
+        return status
+        
+    except Exception as e:
+        logger.error(f"[SYSTEM STATUS ERROR] {e}")
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "overall_status": "error",
+            "message": str(e)
+        }
+
 
 
 

@@ -31,8 +31,9 @@ python-dotenv
 # Optional frontend support
 jinja2
 
-# HTTP requests (needed for frontend)
+# HTTP requests (needed for frontend and embeddings)
 requests
+numpy
 
 pydantic[email]
 huggingface_hub

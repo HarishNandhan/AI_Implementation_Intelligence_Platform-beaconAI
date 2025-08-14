@@ -25,7 +25,7 @@ client = InferenceClient(provider=LLM_PROVIDER, api_key=HF_TOKEN)
 
 def generate_llama_response(prompt: str) -> str:
     """
-    Generates a strategic insight using a chat-compatible LLM (e.g., Mistral via Novita).
+    Generates a strategic insight using a chat-compatible LLM (e.g., Mistral via HuggingFace).
     """
     try:
         response = client.chat.completions.create(

@@ -19,7 +19,7 @@ class MailgunClient:
         self.domain = os.getenv("MAILGUN_DOMAIN") 
         self.base_url = os.getenv("MAILGUN_BASE_URL", "https://api.mailgun.net/v3")
         self.sender_email = os.getenv("SENDER_EMAIL", "harish@beaconai.ai")
-        self.sender_name = os.getenv("SENDER_NAME", "Harish - BeaconAI Team")
+        self.sender_name = os.getenv("SENDER_NAME", "Harish - beaconAI Team")
         
         # Validate configuration
         if not self.api_key or self.api_key == "your_mailgun_api_key_here":
@@ -202,7 +202,7 @@ class MailgunClient:
                 
                 <!-- Header -->
                 <div style="background-color: #0A3161; color: white; padding: 30px 40px; text-align: center;">
-                    <h1 style="margin: 0; font-size: 28px; font-weight: bold;">BeaconAI</h1>
+                    <h1 style="margin: 0; font-size: 28px; font-weight: bold;">beaconAI</h1>
                     <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">AI Implementation Intelligence Platform</p>
                 </div>
                 
@@ -216,7 +216,7 @@ class MailgunClient:
                     <p style="font-size: 16px; margin-bottom: 20px;">Dear {persona},</p>
                     
                     <p style="font-size: 16px; margin-bottom: 20px;">
-                        Thank you for completing the BeaconAI AI Readiness Assessment for <strong>{company_name}</strong>. 
+                        Thank you for completing the beaconAI AI Readiness Assessment for <strong>{company_name}</strong>. 
                         Your personalized report is now ready and attached to this email.
                     </p>
                     
@@ -246,7 +246,7 @@ class MailgunClient:
                         <a href="https://www.beaconai.ai" 
                            style="display: inline-block; background-color: #008080; color: white; padding: 15px 30px; 
                                   text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; margin: 10px;">
-                            🌐 Learn More About BeaconAI
+                            🌐 Learn More About beaconAI
                         </a>
                     </div>
                     
@@ -275,7 +275,7 @@ class MailgunClient:
                         🌐 Website: <a href="https://www.beaconai.ai" style="color: #FFA500;">www.beaconai.ai</a>
                     </p>
                     <p style="margin: 20px 0 0 0; font-size: 12px; opacity: 0.8;">
-                        © 2024 BeaconAI. All rights reserved.
+                        © 2025 beaconAI. All rights reserved.
                     </p>
                 </div>
             </div>
@@ -290,7 +290,7 @@ Your AI Readiness Assessment Report - {company_name}
 
 Dear {persona},
 
-Thank you for completing the BeaconAI AI Readiness Assessment for {company_name}. Your personalized report is now ready and attached to this email.
+Thank you for completing the beaconAI AI Readiness Assessment for {company_name}. Your personalized report is now ready and attached to this email.
 
 WHAT'S INSIDE YOUR REPORT:
 • Comprehensive CARE framework analysis

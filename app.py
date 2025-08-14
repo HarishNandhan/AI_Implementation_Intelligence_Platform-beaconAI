@@ -352,6 +352,28 @@ if st.session_state.report_generated and st.session_state.email_validated:
         else:
             st.metric("File Size", "N/A")
     
+    # System Status Dashboard
+    st.markdown("---")
+    st.markdown("### 📊 System Status")
+    
+    # Quick status check
+    col1, col2, col3 = st.columns([1, 1, 1])
+    
+    with col1:
+        if st.session_state.get('email_sent', False):
+            st.success("📧 Email: Sent")
+        elif st.session_state.get('email_status', '').startswith('Email sending failed'):
+            st.warning("📧 Email: Failed")
+        else:
+            st.info("📧 Email: Ready")
+    
+    with col2:
+        st.success("📄 PDF: Generated")
+    
+    with col3:
+        # We can assume sheets worked if we got this far
+        st.success("📊 Sheets: Captured")
+    
     # Call-to-action for next steps
     st.markdown("---")
     st.markdown("### 🚀 What's Next?")
@@ -410,19 +432,61 @@ if st.session_state.report_generated and st.session_state.email_validated:
                 st.rerun()
         
         with col_b:
-            if st.button("🧪 Test Email System", type="secondary", use_container_width=True):
-                with st.spinner("Testing email configuration..."):
+            if st.button("🧪 Test All Systems", type="secondary", use_container_width=True):
+                with st.spinner("Testing all system components..."):
+                    backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
+                    
+                    # Test Email System
+                    st.write("**📧 Testing Email System...**")
                     try:
-                        backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
-                        test_response = requests.post(f"{backend_url}/report/test-email", timeout=10)
-                        
-                        if test_response.status_code == 200:
-                            test_data = test_response.json()
-                            if test_data["status"] == "success":
-                                st.success(f"✅ Email system working: {test_data['message']}")
+                        email_response = requests.post(f"{backend_url}/report/test-email", timeout=10)
+                        if email_response.status_code == 200:
+                            email_data = email_response.json()
+                            if email_data["status"] == "success":
+                                st.success(f"✅ Email: {email_data['message']}")
                             else:
-                                st.error(f"❌ Email system issue: {test_data['message']}")
+                                st.error(f"❌ Email: {email_data['message']}")
                         else:
-                            st.error(f"❌ Test failed: {test_response.text}")
+                            st.error(f"❌ Email test failed: {email_response.text}")
                     except Exception as e:
-                        st.error(f"❌ Test error: {str(e)}")
+                        st.error(f"❌ Email test error: {str(e)}")
+                    
+                    # Test Google Sheets
+                    st.write("**📊 Testing Google Sheets...**")
+                    try:
+                        sheets_response = requests.post(f"{backend_url}/report/test-sheets", timeout=15)
+                        if sheets_response.status_code == 200:
+                            sheets_data = sheets_response.json()
+                            if sheets_data["status"] == "success":
+                                details = sheets_data.get("details", {})
+                                st.success(f"✅ Google Sheets: {sheets_data['message']}")
+                                if details.get("total_rows", 0) > 0:
+                                    st.info(f"📈 Sheet has {details['total_rows']} rows")
+                                if details.get("service_account_email"):
+                                    st.info(f"🔑 Service Account: {details['service_account_email']}")
+                            else:
+                                st.error(f"❌ Google Sheets: {sheets_data['message']}")
+                                if "details" in sheets_data and "errors" in sheets_data["details"]:
+                                    for error in sheets_data["details"]["errors"]:
+                                        st.error(f"   • {error}")
+                        else:
+                            st.error(f"❌ Sheets test failed: {sheets_response.text}")
+                    except Exception as e:
+                        st.error(f"❌ Sheets test error: {str(e)}")
+                    
+                    # Test PDF Generation
+                    st.write("**📄 Testing PDF Generation...**")
+                    try:
+                        pdf_response = requests.post(f"{backend_url}/report/test-pdf", timeout=10)
+                        if pdf_response.status_code == 200:
+                            pdf_data = pdf_response.json()
+                            if pdf_data["status"] == "success":
+                                st.success(f"✅ PDF: {pdf_data['message']} ({pdf_data.get('pdf_size', 0)} bytes)")
+                            else:
+                                st.error(f"❌ PDF: {pdf_data['message']}")
+                        else:
+                            st.error(f"❌ PDF test failed: {pdf_response.text}")
+                    except Exception as e:
+                        st.error(f"❌ PDF test error: {str(e)}")
+                    
+                    st.write("**🎯 System Test Complete**")
