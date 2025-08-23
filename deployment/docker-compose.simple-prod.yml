@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Simple Backend Service (from Docker Hub)
+  beaconai-backend:
+    image: harishnandhan02/beaconai-simple:latest
+    container_name: beaconai-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # Load from .env file
+      - HF_TOKEN=${HF_TOKEN}
+      - LLM_PROVIDER=${LLM_PROVIDER}
+      - LLM_MODEL=${LLM_MODEL}
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+      - MAILGUN_DOMAIN=${MAILGUN_DOMAIN}
+      - MAILGUN_BASE_URL=${MAILGUN_BASE_URL}
+      - SENDER_EMAIL=${SENDER_EMAIL}
+      - SENDER_NAME=${SENDER_NAME}
+      - GOOGLE_SHEETS_ID=${GOOGLE_SHEETS_ID}
+      - GOOGLE_SHEETS_CREDENTIALS_FILE=${GOOGLE_SHEETS_CREDENTIALS_FILE}
+      - DOCKER_ENV=true
+    volumes:
+      # Persist generated reports
+      - ./generated_reports:/app/generated_reports
+      # Persist logs
+      - ./logs:/app/logs
+      # Mount Google Sheets credentials
+      - ../config/google_sheets_credentials.json:/app/config/google_sheets_credentials.json
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  default:
+    name: beaconai-network

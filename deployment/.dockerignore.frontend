@@ -1,0 +1,25 @@
+# Ignore ALL backend files - frontend only needs app.py and care/
+api/
+llm_engine/
+email_service/
+google_sheets/
+scraper/
+vector_store/
+reporting/
+generated_reports/
+config/
+requirements.txt
+requirements1.txt
+*.pyc
+__pycache__/
+.git/
+.gitignore
+README.md
+.env*
+docker-compose.yml
+deployment/
+.pytest_cache/
+*.log
+*.db
+*.sqlite
+node_modules/

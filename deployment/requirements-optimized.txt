@@ -1,0 +1,42 @@
+# Core API (Essential)
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic[email]
+
+# Web scraping (Essential)
+selenium==4.15.0
+beautifulsoup4==4.12.2
+
+# PDF generation (Essential)
+reportlab==4.0.7
+
+# Environment & HTTP (Essential)
+python-dotenv==1.0.0
+requests==2.31.0
+
+# Frontend (Essential)
+streamlit==1.28.0
+
+# LLM API (Essential)
+huggingface_hub==0.19.4
+
+# Google Sheets (Essential)
+gspread==5.12.0
+google-auth==2.23.4
+
+# AI/RAG Stack (Optimized versions)
+# Use lighter versions and specific models
+sentence-transformers==2.2.2  # Lighter than latest
+faiss-cpu==1.7.4              # Specific stable version
+langchain-core==0.1.0         # Core only, not full langchain
+langchain-community==0.0.10   # Minimal community features
+
+# Remove these heavy/unused packages:
+# langchain (full package - too heavy)
+# tiktoken (not directly used)
+# sendgrid (using mailgun instead)
+# httpx (using requests instead)
+# jinja2 (not used)
+# lxml (beautifulsoup can use html.parser)
+# numpy (only if not required by other packages)

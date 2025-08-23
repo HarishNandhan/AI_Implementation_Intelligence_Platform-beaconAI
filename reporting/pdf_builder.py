@@ -18,7 +18,7 @@ class PDFReportBuilder:
         self.sections = ReportSections()
         self.layout = ReportLayout()
     
-    def generate_pdf_report(self, company_name, persona, insights, solution_section, output_path=None):
+    def generate_pdf_report(self, user_name, company_name, persona, insights, solution_section, output_path=None):
         """Generate structured PDF report"""
         # Use Docker-aware path
         if output_path is None:
@@ -53,7 +53,7 @@ class PDFReportBuilder:
         doc.build(story)
         return filepath
     
-    def generate_pdf_to_buffer(self, company_name, persona, insights, solution_section):
+    def generate_pdf_to_buffer(self, user_name, company_name, persona, insights, solution_section):
         """Generate PDF report directly to memory buffer"""
         buffer = BytesIO()
         
@@ -92,10 +92,10 @@ class PDFReportBuilder:
 _builder = PDFReportBuilder()
 
 # Export functions for backward compatibility
-def generate_pdf_report(company_name, persona, insights, solution_section, output_path=None):
+def generate_pdf_report(user_name, company_name, persona, insights, solution_section, output_path=None):
     """Generate PDF report (backward compatibility function)"""
-    return _builder.generate_pdf_report(company_name, persona, insights, solution_section, output_path)
+    return _builder.generate_pdf_report(user_name, company_name, persona, insights, solution_section, output_path)
 
-def generate_pdf_to_buffer(company_name, persona, insights, solution_section):
+def generate_pdf_to_buffer(user_name, company_name, persona, insights, solution_section):
     """Generate PDF report to buffer (backward compatibility function)"""
-    return _builder.generate_pdf_to_buffer(company_name, persona, insights, solution_section)
+    return _builder.generate_pdf_to_buffer(user_name, company_name, persona, insights, solution_section)

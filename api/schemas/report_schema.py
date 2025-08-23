@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr
 from typing import Dict, Optional
 
 class ReportRequest(BaseModel):
+    user_name: str  # User's full name
     company_name: str
     company_website: str
     persona: str

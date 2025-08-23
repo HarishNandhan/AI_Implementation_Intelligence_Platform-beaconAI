@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # Backend Service (from Docker Hub)
+  backend:
+    image: harishnandhan02/beaconai-backend:latest
+    container_name: beaconai-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # Environment variables for the backend
+      - HF_TOKEN=${HF_TOKEN:-hf_your_hugging_face_token_here}
+      - LLM_PROVIDER=${LLM_PROVIDER:-auto}
+      - LLM_MODEL=${LLM_MODEL:-mistralai/Mistral-7B-Instruct-v0.3}
+      
+      # Email Configuration (Mailgun - Primary)
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+      - MAILGUN_DOMAIN=${MAILGUN_DOMAIN}
+      - MAILGUN_BASE_URL=${MAILGUN_BASE_URL:-https://api.mailgun.net/v3}
+      - SENDER_EMAIL=${SENDER_EMAIL:-dale@beaconai.ai}
+      - SENDER_NAME=${SENDER_NAME:-Dale - BeaconAI Team}
+      
+      # Google Sheets Configuration
+      - GOOGLE_SHEETS_ID=${GOOGLE_SHEETS_ID}
+      - GOOGLE_SHEETS_CREDENTIALS_FILE=${GOOGLE_SHEETS_CREDENTIALS_FILE:-config/google_sheets_credentials.json}
+      
+      # Backend URL
+      - BACKEND_URL=${BACKEND_URL:-http://localhost:8000}
+      
+      # Docker environment flag
+      - DOCKER_ENV=true
+
+    volumes:
+      # Mount generated_reports directory to persist PDF files
+      - ./generated_reports:/app/generated_reports
+      # Mount assets directory for logos/images
+      - ../reporting/assets:/app/reporting/assets
+      # Mount Google Sheets credentials
+      - ../config/google_sheets_credentials.json:/app/config/google_sheets_credentials.json
+
+    networks:
+      - beaconai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend Service (from Docker Hub)
+  frontend:
+    image: harishnandhan02/beaconai-frontend:latest
+    container_name: beaconai-frontend
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    environment:
+      # Backend URL for frontend to connect to backend service
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - beaconai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Define custom network
+networks:
+  beaconai-network:
+    driver: bridge
+
+# Define volumes for data persistence
+volumes:
+  generated_reports:
+    driver: local

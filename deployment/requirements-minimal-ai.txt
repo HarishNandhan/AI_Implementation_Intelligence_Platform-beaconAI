@@ -1,0 +1,35 @@
+# Minimal AI version - reduces memory but keeps core functionality
+# Use this for memory-constrained deployments
+
+# Core API
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic[email]
+
+# Web scraping
+selenium==4.15.0
+beautifulsoup4==4.12.2
+
+# PDF generation
+reportlab==4.0.7
+
+# Environment & HTTP
+python-dotenv==1.0.0
+requests==2.31.0
+
+# Frontend
+streamlit==1.28.0
+
+# LLM API (Essential)
+huggingface_hub==0.19.4
+
+# Google Sheets
+gspread==5.12.0
+google-auth==2.23.4
+
+# Minimal AI - Only sentence transformers (no FAISS, no LangChain)
+sentence-transformers==2.2.2
+
+# Environment flag: ENABLE_ADVANCED_RAG=false will use simple keyword search
+# Environment flag: ENABLE_ADVANCED_RAG=true will require full AI stack

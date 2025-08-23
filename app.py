@@ -5,7 +5,7 @@ import re
 from care.question_bank import CARE_QUESTIONS
 
 st.set_page_config(
-    page_title="BeaconAI Diagnostic", 
+    page_title="beaconAI Diagnostic", 
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -14,7 +14,7 @@ st.set_page_config(
 # Header with branding
 st.markdown("""
 <div style="background: linear-gradient(90deg, #0A3161 0%, #FFA500 100%); padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-    <h1 style="color: white; margin: 0; text-align: center;">🤖 BeaconAI – AI Readiness Diagnostic</h1>
+    <h1 style="color: white; margin: 0; text-align: center;">🤖 beaconAI – AI Readiness Diagnostic</h1>
     <p style="color: white; margin: 10px 0 0 0; text-align: center; opacity: 0.9;">
         Discover your organization's AI implementation readiness with our comprehensive CARE assessment
     </p>
@@ -58,11 +58,15 @@ if not st.session_state.report_generated:
     show_progress(1, 3, "Complete Assessment")
 
 with st.form("care_form"):
+    # Personal Information
+    st.subheader("👤 Personal Info")
+    user_name = st.text_input("Your Name *", placeholder="e.g., John Smith")
+    
     # Company Information
     st.subheader("🧩 Company Info")
-    company_name = st.text_input("Company Name")
-    company_website = st.text_input("Company Website")
-    persona = st.selectbox("Who are you?", ["CTO", "CHRO", "CMO", "COO", "CEO", "Other"])
+    company_name = st.text_input("Company Name *", placeholder="e.g., Acme Corporation")
+    company_website = st.text_input("Company Website *", placeholder="e.g., https://www.acme.com")
+    persona = st.selectbox("Your Role *", ["CTO", "CHRO", "CMO", "COO", "CEO", "Other"])
 
     # CARE Diagnostic Questions
     st.subheader("📋 CARE Diagnostic Questions")
@@ -79,8 +83,8 @@ with st.form("care_form"):
 # -------------------------------
 if submitted:
     # Validate required fields
-    if not company_name or not company_website:
-        st.error("❌ Please fill in all required fields (Company Name and Website).")
+    if not user_name or not company_name or not company_website:
+        st.error("❌ Please fill in all required fields (Name, Company Name, and Website).")
     else:
         with st.spinner("Generating your personalized PDF report..."):
             try:
@@ -88,6 +92,7 @@ if submitted:
                 backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
                 
                 # Store form data for email collection step
+                st.session_state.user_name = user_name
                 st.session_state.company_name = company_name
                 st.session_state.company_website = company_website
                 st.session_state.persona = persona
@@ -158,6 +163,7 @@ if st.session_state.report_generated and not st.session_state.email_validated:
                         email_response = requests.post(
                             f"{backend_url}/report/generate",
                             json={
+                                "user_name": st.session_state.user_name,
                                 "company_name": st.session_state.company_name,
                                 "company_website": st.session_state.company_website,
                                 "persona": st.session_state.persona,
@@ -341,12 +347,14 @@ if st.session_state.report_generated and st.session_state.email_validated:
     st.markdown("---")
     st.markdown("### 📊 Report Details")
     
-    col1, col2, col3 = st.columns([1, 1, 1])
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
     with col1:
-        st.metric("Company", st.session_state.company_name)
+        st.metric("Name", st.session_state.user_name)
     with col2:
-        st.metric("Role", st.session_state.persona)
+        st.metric("Company", st.session_state.company_name)
     with col3:
+        st.metric("Role", st.session_state.persona)
+    with col4:
         if st.session_state.download_data is not None:
             st.metric("File Size", f"{len(st.session_state.download_data) // 1024} KB")
         else:

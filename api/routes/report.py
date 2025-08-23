@@ -69,6 +69,7 @@ def generate_report(data: ReportRequest, request: Request):
         
         # Generate PDF directly to buffer
         pdf_content = generate_pdf_to_buffer(
+            user_name=data.user_name,
             company_name=data.company_name,
             persona=data.persona,
             insights=formatted_insights,
@@ -83,6 +84,7 @@ def generate_report(data: ReportRequest, request: Request):
         # Step 4: Store Lead Information in Google Sheets (Optional)
         try:
             lead_data = {
+                'user_name': data.user_name,
                 'email': data.user_email,
                 'company_name': data.company_name,
                 'company_website': data.company_website,
@@ -131,6 +133,7 @@ def generate_report(data: ReportRequest, request: Request):
                 if mailgun_client:
                     email_result = mailgun_client.send_report_email(
                         recipient_email=data.user_email,
+                        recipient_name=data.user_name,
                         company_name=data.company_name,
                         persona=data.persona,
                         pdf_content=pdf_content,

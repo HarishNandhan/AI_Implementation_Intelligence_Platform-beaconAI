@@ -123,7 +123,8 @@ class MailgunClient:
     
     def send_report_email(
         self, 
-        recipient_email: str, 
+        recipient_email: str,
+        recipient_name: str,
         company_name: str, 
         persona: str,
         pdf_content: bytes, 
@@ -148,14 +149,16 @@ class MailgunClient:
             
             # Create HTML email content
             html_content = self._create_report_email_html(
-                recipient_email, 
+                recipient_email,
+                recipient_name,
                 company_name, 
                 persona
             )
             
             # Create text version
             text_content = self._create_report_email_text(
-                recipient_email, 
+                recipient_email,
+                recipient_name,
                 company_name, 
                 persona
             )
@@ -187,7 +190,7 @@ class MailgunClient:
                 "status_code": 500
             }
     
-    def _create_report_email_html(self, recipient_email: str, company_name: str, persona: str) -> str:
+    def _create_report_email_html(self, recipient_email: str, recipient_name: str, company_name: str, persona: str) -> str:
         """Create HTML email template for report delivery"""
         return f"""
         <!DOCTYPE html>
